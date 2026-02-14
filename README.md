@@ -1,2 +1,3 @@
 # home-assistant-custom-code
-Custom code used for home assistant
+This repository holdes the custom code I have made or modified that I use with with home assistant.  
+Use at your own risk, not all code has been thoroughly tested.
