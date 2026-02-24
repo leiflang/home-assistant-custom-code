@@ -1,0 +1,113 @@
+mode: restart
+blueprint:
+  name: Light Follow
+  author: leiflang
+  description: Have 1 or more lights follow a parent light
+  domain: automation
+  input:
+    parent_light:
+      name: Parent Light
+      description: "This is the main light or parent light. All other lights will follow the state, colour temp and colour of this light"
+      selector:
+        entity:
+          domain: light
+    parent_control_colour:
+      name: Control Colour/Hue
+      description: Enable to control both the state and colour/hue, disable to only control state
+      selector:
+        boolean: {}
+      default: true
+    child_light:
+      name: Child Light
+      description: "These are the children light(s), they will follow the state, colour temp and colour of the parent light"
+      selector:
+        entity:
+          multiple: true
+          domain: light
+    change_delay_seconds:
+      name: Change Delay (Seconds)
+      description: "How long to wait after the parent has changed states to apply the changes to the child"
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 360
+          unit_of_measurement: seconds
+alias: Light Follow
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - !input parent_light
+    id: trigger
+conditions: []
+actions:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: !input change_delay_seconds
+      milliseconds: 1
+  - variables:
+      light_status: "{{trigger.to_state.state}}"
+      light_brightness: "{{trigger.to_state.attributes.brightness | default(None)}}"
+      light_hs_colour: "{{trigger.to_state.attributes.hs_color | default(None)}}"
+      light_colour_temp: "{{trigger.to_state.attributes.color_temp | default(None)}}"
+      control_colour: !input parent_control_colour
+  - action: logbook.log
+    metadata: {}
+    data:
+      name: Values
+      message: |-
+        Light Status: {{light_status}}
+        Light Brightness: {{light_brightness}}
+        Light Colour Hue/Saturation: {{light_hs_colour}}
+        Light Colour Temp: {{light_colour_temp}}
+  - repeat:
+      for_each: !input child_light
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{light_status == 'on' and (light_colour_temp is none and light_hs_colour is none or control_colour == false)}}"
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: "{{light_brightness}}"
+              alias: When the light turns on but does not suppoer colour
+            - conditions:
+                - condition: template
+                  value_template: "{{light_status == 'on' and light_colour_temp is none}}"
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: "{{light_brightness}}"
+                    hs_color: "{{light_hs_colour}}"
+              alias: When the light turns on or changes colour state
+            - conditions:
+                - condition: template
+                  value_template: "{{light_status == 'on' and light_colour_temp is not none}}"
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: "{{light_brightness}}"
+                    color_temp: "{{light_colour_temp}}"
+              alias: When the light turns on or changes temperature state
+            - conditions:
+                - condition: template
+                  value_template: "{{light_status == 'off'}}"
+              sequence:
+                - action: light.turn_off
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data: {}
+              alias: If light is turned off
