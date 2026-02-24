@@ -1,8 +1,28 @@
 mode: restart
 blueprint:
-  name: Light Follow
+  name: Light Follow (Parent Child Light Control)
   author: leiflang
-  description: Have 1 or more lights follow a parent light
+  source_url: https://raw.githubusercontent.com/leiflang/home-assistant-custom-code/refs/heads/main/blueprints/automations/LightFollow.yaml
+  description: |
+    # Light Follow (Parent Child Light Control)
+    ## Version: 1.0.0
+    This blueprint allows you to set a "Parent" light that the children light(s) will follow the state (on/off), brightness and colour/hue.
+    Using the "Control Colour/Hue" toggle you can select if you want to control just the state and brightness or state, brightness and colour/hue.  
+    If your parent light changes many times in short succesion befor landing on a final state, say the light dims down before turning off, you can set the Change Delay (Seconds) so only once the state settles for a set amount of time will it try to update the state of the child lights.
+
+    ## Limitations
+    If the parent light does not have brightness, colour and/or hue, then the this script will not be able to control those values for the children lights.
+    There should not be any issues if the child light does not support all the features that the parent light supports, the applicable features will be controlled.
+    If you want to have more then 1 light be a "Parent Light" you will need to create a helper in home assistant. 
+
+    # Change Log
+    ### Version 1.0.0
+    Initial Version
+
+    # Extra Info and Links
+    [Copyright License](https://github.com/leiflang/home-assistant-custom-code/blob/main/LICENSE.txt)
+    [GitHub](https://github.com/leiflang/home-assistant-custom-code/blob/main/blueprints/automations/LightFollow.yaml)
+
   domain: automation
   input:
     parent_light:
@@ -13,7 +33,9 @@ blueprint:
           domain: light
     parent_control_colour:
       name: Control Colour/Hue
-      description: Enable to control both the state and colour/hue, disable to only control state
+      description: |
+        Enable to have the parent light control the state, brightness and colour/hue of the children lights.  
+        Disable to only control child light state and brightness.
       selector:
         boolean: {}
       default: true
