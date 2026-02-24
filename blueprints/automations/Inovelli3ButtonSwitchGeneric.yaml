@@ -2,7 +2,31 @@ mode: restart
 blueprint:
   name: Inovelli 3 button switch
   author: leiflang (modified from Skaronator's IKEA BILRESA Dual Button blueprint)
-  description: "TBD"
+  description: |
+    # Inovelli 3 button white series blueprint
+    ## Version 1.0.0
+
+    # Description
+    To use this script you must link the 3 button events of your Inovelli smart switch in the Button Setup section. Unless you changed the event names they should match exactly with what is shown in the Button Section of this blueprint.
+    After that you can setup the actions that will be performed by the smart button when the buttons are pressed. You DO NOT need to set up all actions, only the actions you plan to use!
+
+    # Compatibility
+    This blueprint is designed to work with the Inovelli white series switches.  
+    Current this blueprint is known to work with the following switches.  
+    - White Series Smart Dimmer (formerly 2-1 switch)  
+    - White Series Smart Fan Switch  
+    - White Series Smart On/Off Switch  
+
+    # Change Log
+    ### Version 1.0.0
+    Initial Version modified from [Skaronator's IKEA BILRESA Dual Button blueprint](https://github.com/Skaronator/home-assistant-blueprints/blob/main/automation/ikea-bilresa-dual-button.yaml)
+
+    # Extra Info and Links
+    [Skaronator's IKEA BILRESA Dual Button blueprint](https://github.com/Skaronator/home-assistant-blueprints/blob/main/automation/ikea-bilresa-dual-button.yaml)
+    [Copyright License](https://github.com/leiflang/home-assistant-custom-code/blob/main/LICENSE.txt)
+    [GitHub](https://github.com/leiflang/home-assistant-custom-code/blob/main/blueprints/automations/Inovelli3ButtonSwitchGeneric.yaml)  
+
+    Thank you for downloading this script!
   domain: automation
   source_url: https://raw.githubusercontent.com/leiflang/home-assistant-custom-code/refs/heads/main/blueprints/automations/Inovelli3ButtonSwitchGeneric.yaml
   homeassistant:
