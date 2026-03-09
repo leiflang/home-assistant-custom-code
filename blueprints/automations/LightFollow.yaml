@@ -16,6 +16,8 @@ blueprint:
     If you want to have more then 1 light be a "Parent Light" you will need to create a helper in home assistant. 
 
     # Change Log
+    ### Version 1.1.0
+    Updated to allow checking both colour_temp and colour_temp_kelvin for lights that support just one but not the other
     ### Version 1.0.0
     Initial Version
 
@@ -74,6 +76,7 @@ actions:
       light_brightness: "{{trigger.to_state.attributes.brightness | default(None)}}"
       light_hs_colour: "{{trigger.to_state.attributes.hs_color | default(None)}}"
       light_colour_temp: "{{trigger.to_state.attributes.color_temp | default(None)}}"
+      light_colour_kelvin: "{{trigger.to_state.attributes.color_temp_kelvin | default(None)}}"
       control_colour: !input parent_control_colour
   - action: logbook.log
     metadata: {}
@@ -84,6 +87,7 @@ actions:
         Light Brightness: {{light_brightness}}
         Light Colour Hue/Saturation: {{light_hs_colour}}
         Light Colour Temp: {{light_colour_temp}}
+        Light Colour Kelvin: {{light_colour_kelvin}}
   - repeat:
       for_each: !input child_light
       sequence:
@@ -101,6 +105,30 @@ actions:
               alias: When the light turns on but does not suppoer colour
             - conditions:
                 - condition: template
+                  value_template: "{{light_status == 'on' and light_colour_temp is not none}}"
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: "{{light_brightness}}"
+                    color_temp: "{{light_colour_temp}}"
+              alias: When the light turns on or changes colour temp state
+            - conditions:
+                - condition: template
+                  value_template: "{{light_status == 'on' and light_colour_kelvin is not none}}"
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: "{{light_brightness}}"
+                    color_temp_kelvin: "{{light_colour_kelvin}}"
+              alias: When the light turns on or changes colour kelvin state
+            - conditions:
+                - condition: template
                   value_template: "{{light_status == 'on' and light_colour_temp is none}}"
               sequence:
                 - action: light.turn_on
@@ -111,18 +139,6 @@ actions:
                     brightness: "{{light_brightness}}"
                     hs_color: "{{light_hs_colour}}"
               alias: When the light turns on or changes colour state
-            - conditions:
-                - condition: template
-                  value_template: "{{light_status == 'on' and light_colour_temp is not none}}"
-              sequence:
-                - action: light.turn_on
-                  metadata: {}
-                  target:
-                    entity_id: "{{ repeat.item }}"
-                  data:
-                    brightness: "{{light_brightness}}"
-                    color_temp: "{{light_colour_temp}}"
-              alias: When the light turns on or changes temperature state
             - conditions:
                 - condition: template
                   value_template: "{{light_status == 'off'}}"
